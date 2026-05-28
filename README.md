@@ -13,7 +13,7 @@ Ask any question about a stock or a compliance policy. MarketMind:
 
 1. Routes your query through a **LangGraph state machine** to decide which tools are needed
 2. Pulls live prices, RSI, MACD, and P/E ratios via a **custom MCP finance server** (yfinance)
-3. Searches internal regulatory documents via a **RAG pipeline** (ChromaDB + sentence-transformers)
+3. Searches internal regulatory documents via a **RAG pipeline** (BM25 keyword search over plain text files)
 4. Streams a synthesized answer back **token-by-token via SSE** — with every agent decision visible in real time
 
 **Example queries:**
@@ -44,10 +44,11 @@ Ask any question about a stock or a compliance policy. MarketMind:
 ┌─────────────────────────────────────────────┐
 │  LangGraph State Machine                    │
 │                                             │
-│  router_node  → Groq LLM decides tools     │
-│  finance_node → MCP server (yfinance)      │
-│  rag_node     → ChromaDB similarity search │
-│  synth_node   → Groq LLM final answer      │
+│  router_node  → Groq LLM decides tools               │
+│               → finance / rag / both / none (skip)   │
+│  finance_node → MCP server (yfinance)                │
+│  rag_node     → BM25 search over rag/docs/*.txt      │
+│  synth_node   → Groq LLM final answer                │
 └─────────────────────────────────────────────┘
 ```
 
@@ -77,8 +78,7 @@ Ask any question about a stock or a compliance policy. MarketMind:
 | AI orchestration | **LangGraph** | Explicit state machine — no black-box agent loops |
 | LLM | **Groq** (`llama-3.3-70b-versatile`) | Free tier, fast inference, tool-calling support |
 | Finance data | **yfinance** | Free, no API key — prices, RSI, MACD, P/E |
-| Regulatory docs | **ChromaDB** + sentence-transformers | Local vector search, pre-built index committed to repo |
-| Embeddings | `sentence-transformers/all-MiniLM-L6-v2` | Free, CPU-only, 384-dim semantic search |
+| Regulatory docs | **BM25** (`rank-bm25`) | Pure Python keyword search, zero ML deps, ~1 MB RAM — replaced ChromaDB + sentence-transformers after Render free-tier OOM |
 | Streaming | **SSE (Server-Sent Events)** | Standard HTTP, no WebSocket needed |
 | Frontend deploy | **Vercel** (free tier) | Native Next.js host |
 | Backend deploy | **Render.com** (free tier) | Free Python hosting; sleeps after 15 min inactivity |
@@ -103,8 +103,8 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env and add your GROQ_API_KEY
 
-python rag/ingest.py            # Build ChromaDB index (run once)
 uvicorn main:app --reload --port 8000
+# No pre-build step needed — BM25 index is built in-memory on first query
 ```
 
 ### Frontend
@@ -150,8 +150,11 @@ The routing decision (finance vs RAG vs both) needs to be inspectable and testab
 **Why MCP for the finance server?**  
 MCP (Model Context Protocol) is a standard protocol for connecting AI to tools. By wrapping yfinance as an MCP server, the architecture stays clean: the LLM calls a tool interface, not a library. Swapping yfinance for a real data provider later requires no changes to the agent.
 
-**Why pre-commit the ChromaDB index?**  
-Render's free tier has an ephemeral filesystem. Building the index at startup would add ~30s to every cold start. Committing the pre-built index means it's always ready.
+**Why BM25 instead of ChromaDB + embeddings?**  
+The original RAG used sentence-transformers + ChromaDB. sentence-transformers silently depends on PyTorch, which consumed ~300 MB RAM on its own — instantly OOM-killing Render's free-tier container (512 MB total). BM25 (`rank-bm25`) is a proven ranking algorithm (used by Elasticsearch) with zero ML dependencies. It builds an in-memory index from the raw `.txt` files on first query and caches it with `lru_cache`. For a corpus of 3 static documents, retrieval quality is indistinguishable from semantic search in practice.
+
+**Why a "none" routing path?**  
+The original router had no exit for conversational messages — "Hi" and meta-questions got forced through the finance tool, which tried to parse them as stock tickers and returned "No tickers found" in the final answer. Adding `tools: []` as a valid router output lets the agent answer naturally without calling any tools.
 
 **Why SSE over WebSockets?**  
 SSE is one-directional, stateless, and works through standard HTTP — no upgrade handshake, no connection management. For a server-to-browser stream of agent events, it's simpler and more reliable than WebSockets.
@@ -170,10 +173,9 @@ finance-market-agent/
 │   ├── mcp_servers/
 │   │   └── finance_server.py # yfinance tools: quote, technicals, search
 │   ├── rag/
-│   │   ├── docs/             # 3 mock regulatory documents
-│   │   ├── ingest.py         # One-time ChromaDB index builder
-│   │   ├── retriever.py      # Similarity search wrapper
-│   │   └── chroma_db/        # Pre-built vector index (committed to git)
+│   │   ├── docs/             # 3 mock regulatory documents (.txt)
+│   │   ├── ingest.py         # Retired — see file for explanation
+│   │   └── retriever.py      # BM25 search, lru_cache on index
 │   ├── main.py               # FastAPI app + /api/chat SSE endpoint
 │   ├── requirements.txt
 │   └── .env.example

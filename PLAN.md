@@ -41,7 +41,7 @@ A proper multi-page website (Next.js) backed by a FastAPI + LangGraph Python ser
 │                                                          │
 │  router_node   → decides: finance / rag / both           │
 │  finance_node  → MCP server (yfinance + financedatabase) │
-│  rag_node      → ChromaDB (mock regulatory docs)         │
+│  rag_node      → BM25 search (mock regulatory docs)      │
 │  synth_node    → Groq LLM (llama-3.3-70b, free)         │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -65,9 +65,9 @@ A proper multi-page website (Next.js) backed by a FastAPI + LangGraph Python ser
 - **Architecture diagram: React Flow** — Free, open-source, built for node-graph UIs. Nodes change color based on incoming SSE events.
 - **Backend host: Render.com** — Free tier for Python services. Note: free tier spins down after 15 min of inactivity (first request takes ~30s to wake up). Acceptable for a demo/portfolio project.
 - **Frontend host: Vercel** — Free tier, perfect for Next.js. Instant deploys from GitHub.
-- **Vector DB: ChromaDB (pre-built, committed to repo)** — Render's filesystem is also ephemeral; pre-building and committing the index solves this for both local and cloud.
-- **Embeddings: `sentence-transformers/all-MiniLM-L6-v2`** — Runs fully on CPU, no API key, good semantic search quality.
-- **Design: Dark mode** — Background `#0a0a0f`, accent `#06b6d4` (cyan), cards `#1e1e2e`. shadcn/ui dark theme as the component base.
+- **RAG search: `rank-bm25`** — Replaced ChromaDB + sentence-transformers after Render free-tier OOM crash. PyTorch (sentence-transformers dependency) consumed ~300 MB of 512 MB RAM. BM25 is pure Python, zero ML deps, builds index from raw .txt files in-memory on first query.
+- **Router "none" path** — Added `tools: []` output so conversational queries skip all tools and go straight to the synthesiser. Without this, "Hi" was routed to finance and returned "No tickers found" in the answer.
+- **Design: Dark mode** — Background `#0f172a` (slate-navy), accent `#818cf8` / `#6366f1` (indigo), cards `#1e1e2e`. Inter font. shadcn/ui dark theme as component base.
 
 ---
 
@@ -81,8 +81,8 @@ These 8 cards appear on `/architecture`. Each has a one-line summary (visible to
 | 2 | **MCP (Model Context Protocol)** | A USB-C standard for connecting AI to external data sources |
 | 3 | **RAG** | Giving the LLM access to documents it was never trained on |
 | 4 | **Tool Calling** | How the LLM says "I need to look something up" and actually does it |
-| 5 | **Embeddings** | Converting text into numbers so you can search by meaning, not keywords |
-| 6 | **Vector Database (ChromaDB)** | A search engine that finds semantically similar content |
+| 5 | **BM25 Document Search** | Keyword-based retrieval that fits inside a 512 MB free-tier instance |
+| 6 | **In-Memory Document Index** | No vector database needed — plain text files, cached on first query |
 | 7 | **SSE Streaming** | How the answer arrives word-by-word instead of all at once |
 | 8 | **Agent Orchestration** | How all the pieces connect into one intelligent system |
 
@@ -190,7 +190,7 @@ These 8 cards appear on `/architecture`. Each has a one-line summary (visible to
   - [ ] 🟥 `frontend/app/page.tsx` — hero section:
     - Project name + tagline ("AI-powered fintech intelligence. Live.")
     - Two primary CTAs: "Try the Demo →" and "How It Works →"
-    - Tech badge strip: LangGraph · MCP · RAG · Groq · ChromaDB · Next.js
+    - Tech badge strip: LangGraph · MCP · RAG · Groq · BM25 · Next.js
   - [ ] 🟥 Brief 3-card "what it does" section below the hero:
     - Card 1: "Live Market Data" (MCP finance server)
     - Card 2: "Regulatory Intelligence" (RAG pipeline)
@@ -234,7 +234,7 @@ These 8 cards appear on `/architecture`. Each has a one-line summary (visible to
     2. FastAPI starts LangGraph graph
     3. Router node calls Groq to decide which tools to use
     4. Finance node starts MCP subprocess, calls get_stock_quote()
-    5. RAG node embeds query, searches ChromaDB, returns top-3 chunks
+    5. RAG node scores query against BM25 index, returns top-3 paragraphs
     6. Synthesizer node calls Groq with all gathered data
     7. Response streams back token-by-token via SSE
 
@@ -287,9 +287,8 @@ finance-market-agent/
 │   │   └── finance_server.py ← Custom MCP server (yfinance + financedatabase)
 │   ├── rag/
 │   │   ├── docs/             ← 3 mock regulatory text files
-│   │   ├── ingest.py         ← One-time script to build ChromaDB index
-│   │   ├── retriever.py      ← ChromaDB search wrapper
-│   │   └── chroma_db/        ← Pre-built index (committed to git)
+│   │   ├── ingest.py         ← Retired (see file for explanation)
+│   │   └── retriever.py      ← BM25 search, lru_cache on index
 │   ├── main.py               ← FastAPI app + /api/chat SSE endpoint
 │   ├── requirements.txt
 │   └── .env.example

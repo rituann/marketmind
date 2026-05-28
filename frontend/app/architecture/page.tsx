@@ -48,13 +48,17 @@ const CONCEPTS = [
     Icon: Zap,
     name: "LangGraph",
     summary: "State machine that controls how the AI decides what to do next",
-    detail: `LangGraph models agent behavior as a directed graph. Each "node" is a Python function that reads the current state and returns an update. "Edges" define which node runs next — and can be conditional (e.g., "if the query needs market data, go to finance_node"). This gives you explicit, inspectable control flow instead of a black-box agent loop.`,
-    code: `g = StateGraph(AgentState)
-g.add_node("router", router_node)
-g.add_node("finance", finance_node)
+    detail: `LangGraph models agent behavior as a directed graph. Each "node" is a Python function that reads the current state and returns an update. "Edges" define which node runs next — and can be conditional (e.g., "if the query needs market data, go to finance_node"). This gives you explicit, inspectable control flow instead of a black-box agent loop. The router has four possible outputs: "finance", "rag", "both", or "none" — the last path short-circuits directly to the synthesiser for conversational messages, skipping all tools.`,
+    code: `# Router decides: finance / rag / both / none
+def route_after_router(state):
+    tools = state.get("next_tools", [])
+    if not tools:      return "synth"   # conversational — skip tools
+    if "finance" in tools: return "finance"
+    return "rag"
+
 g.add_conditional_edges(
-  "router",
-  lambda s: "finance" if "finance" in s["next_tools"] else "rag"
+  "router", route_after_router,
+  {"finance": "finance", "rag": "rag", "synth": "synth"}
 )`,
   },
   {

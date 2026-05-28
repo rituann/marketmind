@@ -76,6 +76,8 @@ A proper multi-page website (Next.js) backed by a FastAPI + LangGraph Python ser
 | Company names not parsed (e.g. "Tesla") | Added `COMPANY_NAME_MAP` in mcp_client.py |
 | Frontend `.git` nested repo | Removed `frontend/.git`; re-staged as regular directory |
 | Emoji icons looked unprofessional | Replaced all 15+ emojis with Lucide React SVG icons |
+| Render free-tier OOM crash on cold start | sentence-transformers pulled in PyTorch (~300 MB); replaced full stack (chromadb + sentence-transformers + langchain-chroma) with `rank-bm25` — pure Python, zero ML deps, ~1 MB RAM. BM25 builds index from raw .txt files in-memory on first query via `lru_cache`. |
+| Conversational queries ("Hi", "how do I feed you data") returned "No tickers found" | Router had no "none" path — every query defaulted to finance tool. Added `tools: []` option to router prompt; `route_after_router` now short-circuits to synth when tools list is empty. Graph edge map updated to include `"synth"` as a valid router target. |
 
 ---
 
@@ -87,6 +89,8 @@ A proper multi-page website (Next.js) backed by a FastAPI + LangGraph Python ser
 | "What are MiFID II reporting requirements?" | `rag` | Real chunks from mifid2_summary.txt |
 | "Is Apple in our blackout policy, and what's its PE?" | `finance + rag` | Blackout since Mar 15, PE 37.59 |
 | "What is the stock price of NOTASTOCK999?" | `finance` | Graceful "not found" message |
+| "Hi" | `none` | Clean conversational greeting, no tool errors |
+| "How can I feed you data?" | `none` | Natural explanation of the system, no ticker error |
 
 ---
 
@@ -99,6 +103,17 @@ A proper multi-page website (Next.js) backed by a FastAPI + LangGraph Python ser
 - **Mobile tab toggle** on demo page — "Chat" and "Under the Hood" tabs on small screens
 - **Concept cards** — explicit ChevronDown icon + "Click any card to expand" hint
 - **Clear chat button** (RotateCcw icon) on demo page
+
+## Design Refresh (Session 2)
+
+- **Accent colour**: Cyan (`#06b6d4`) → Indigo (`#818cf8` / `#6366f1`) — eliminates the "AI startup dark mode" signal
+- **Font**: Added Inter via `next/font/google` (`--font-inter` CSS variable) — more authoritative than system-ui
+- **Background**: `#0a0a0f` (near-black) → `#0f172a` (dark slate-navy) — lighter, easier on the eye, still dark
+- **Hero badge removed**: The cyan pill "Agentic AI · Production Architecture" replaced with plain uppercase eyebrow `MARKET INTELLIGENCE PLATFORM`
+- **Feature cards**: Centered layout with large icons (96×96px container, 48px icon) and `text-base` body copy — MBB editorial style rather than bullet-card style
+- **Button text**: Corrected to white (indigo is darker than old cyan; `text-[#0a0a0f]` would have been illegible)
+- **Vercel root directory fix**: Set `frontend` as root directory in Vercel dashboard to stop GitHub-triggered deployments from failing with "pages directory not found"
+- **Architecture page**: Updated concept cards for BM25, "none" routing path, and all ChromaDB/sentence-transformers references
 
 ---
 
