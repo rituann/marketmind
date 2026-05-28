@@ -140,6 +140,18 @@ npm run dev
 2. Add env var: `NEXT_PUBLIC_API_URL=https://<your-render-url>.onrender.com`
 3. Deploy
 
+### Making changes and redeploying
+
+Both services auto-deploy when you push to `main`. The rule is simple: push the code, the right service redeploys automatically.
+
+| What changed | What redeploys | How |
+|---|---|---|
+| Anything in `frontend/` | Vercel only | `git add . && git commit -m "..." && git push origin main` |
+| Anything in `backend/` | Render only | Same — Render watches the `backend/` root directory |
+| Both | Both | Same single push — each platform picks up its own changes |
+
+Neither service redeploys unless its own files changed. A frontend-only push does not restart the Render backend, and vice versa.
+
 ---
 
 ## Key Design Decisions
