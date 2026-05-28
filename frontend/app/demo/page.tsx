@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { Zap, TrendingUp, FileSearch, Brain, Send, RotateCcw, X } from "lucide-react";
 import { useChatStream, ExecutionEvent } from "@/hooks/useChatStream";
 
 interface Message {
@@ -21,18 +22,18 @@ const NODE_LABELS: Record<string, string> = {
   synth: "Synthesizer",
 };
 
-const NODE_ICONS: Record<string, string> = {
-  router: "⚡",
-  finance: "📈",
-  rag: "📋",
-  synth: "🧠",
+const NODE_ICONS: Record<string, React.FC<{ className?: string }>> = {
+  router: ({ className }) => <Zap className={className} />,
+  finance: ({ className }) => <TrendingUp className={className} />,
+  rag: ({ className }) => <FileSearch className={className} />,
+  synth: ({ className }) => <Brain className={className} />,
 };
 
 function EventCard({ event }: { event: ExecutionEvent }) {
   const [open, setOpen] = useState(false);
   const color = NODE_COLORS[event.node ?? ""] ?? "text-slate-400 border-white/10 bg-white/5";
   const label = NODE_LABELS[event.node ?? ""] ?? event.node ?? "system";
-  const icon = NODE_ICONS[event.node ?? ""] ?? "•";
+  const IconComponent = NODE_ICONS[event.node ?? ""];
   const time = new Date(event.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
   return (
@@ -42,7 +43,7 @@ function EventCard({ event }: { event: ExecutionEvent }) {
         onClick={() => setOpen((o) => !o)}
       >
         <span className="flex items-center gap-2 text-xs font-medium">
-          <span>{icon}</span>
+          {IconComponent && <IconComponent className="h-3 w-3" />}
           <span>{label}</span>
           <span className="opacity-50">{event.type === "node_start" ? "started" : "completed"}</span>
         </span>
@@ -63,9 +64,13 @@ const SAMPLE_QUERIES = [
   "Is AAPL on our restricted list, and what's its P/E ratio?",
 ];
 
+type Tab = "chat" | "hood";
+
 export default function DemoPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [activeTab, setActiveTab] = useState<Tab>("chat");
+  const [showBanner, setShowBanner] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { response, executionLog, isLoading, error, sendMessage } = useChatStream();
 
@@ -88,6 +93,13 @@ export default function DemoPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, executionLog]);
 
+  // Switch to hood tab automatically when agent starts running
+  useEffect(() => {
+    if (isLoading && executionLog.length > 0) {
+      // don't auto-switch, let user stay in chat
+    }
+  }, [isLoading, executionLog]);
+
   async function handleSend(text?: string) {
     const msg = (text ?? input).trim();
     if (!msg || isLoading) return;
@@ -96,109 +108,154 @@ export default function DemoPage() {
     await sendMessage(msg);
   }
 
-  return (
-    <div className="flex h-[calc(100vh-3.5rem)]">
-      {/* Chat column */}
-      <div className="flex flex-1 flex-col">
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6">
-          {messages.length === 0 && (
-            <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
-              <p className="text-sm text-slate-500">
-                Ask about live market data or regulatory compliance.
-              </p>
-              <div className="flex flex-col gap-2">
-                {SAMPLE_QUERIES.map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => handleSend(q)}
-                    className="rounded-lg border border-white/8 bg-[#1e1e2e] px-4 py-2 text-sm text-slate-300 transition-colors hover:border-[#06b6d4]/40 hover:text-[#06b6d4]"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          <div className="mx-auto max-w-2xl space-y-4">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`flex msg-animate ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm leading-relaxed ${
-                    m.role === "user"
-                      ? "bg-[#06b6d4] text-[#0a0a0f] font-medium"
-                      : "bg-[#1e1e2e] text-slate-200"
-                  }`}
-                >
-                  {m.content}
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start msg-animate">
-                <div className="rounded-xl bg-[#1e1e2e] px-4 py-3">
-                  <span className="flex gap-1">
-                    {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className="inline-block h-1.5 w-1.5 rounded-full bg-[#06b6d4] animate-bounce"
-                        style={{ animationDelay: `${i * 0.15}s` }}
-                      />
-                    ))}
-                  </span>
-                </div>
-              </div>
-            )}
-            {error && (
-              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
-                {error}
-              </div>
-            )}
-          </div>
-          <div ref={bottomRef} />
-        </div>
+  function handleClear() {
+    setMessages([]);
+  }
 
-        {/* Input */}
-        <div className="border-t border-white/8 px-4 py-3">
-          <div className="mx-auto flex max-w-2xl gap-2">
-            <input
-              className="flex-1 rounded-lg border border-white/10 bg-[#1e1e2e] px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#06b6d4]/50 focus:outline-none"
-              placeholder="Ask about a stock, company, or compliance rule..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              disabled={isLoading}
-            />
-            <button
-              onClick={() => handleSend()}
-              disabled={isLoading || !input.trim()}
-              className="rounded-lg bg-[#06b6d4] px-4 py-2.5 text-sm font-semibold text-[#0a0a0f] transition-colors hover:bg-[#0891b2] disabled:opacity-40"
-            >
-              Send
-            </button>
-          </div>
+  return (
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+      {/* Cold start banner */}
+      {showBanner && (
+        <div className="flex items-center justify-between gap-3 border-b border-amber-500/20 bg-amber-500/10 px-4 py-2.5">
+          <p className="text-xs text-amber-300">
+            <span className="font-semibold">Heads up:</span> The backend runs on Render&apos;s free tier and sleeps after inactivity. Your first query may take ~30s to wake it up — subsequent ones are fast.
+          </p>
+          <button onClick={() => setShowBanner(false)} className="shrink-0 text-amber-400 hover:text-amber-200">
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
+      )}
+
+      {/* Mobile tabs */}
+      <div className="flex border-b border-white/8 lg:hidden">
+        {(["chat", "hood"] as Tab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
+              activeTab === tab
+                ? "border-b-2 border-[#06b6d4] text-[#06b6d4]"
+                : "text-slate-500 hover:text-slate-300"
+            }`}
+          >
+            {tab === "chat" ? "Chat" : "Under the Hood"}
+          </button>
+        ))}
       </div>
 
-      {/* Under the Hood panel */}
-      <div className="hidden w-80 shrink-0 border-l border-white/8 lg:flex lg:flex-col">
-        <div className="border-b border-white/8 px-4 py-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Under the Hood
-          </h2>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Chat column */}
+        <div className={`flex flex-1 flex-col ${activeTab !== "chat" ? "hidden lg:flex" : ""}`}>
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 py-6">
+            {messages.length === 0 && (
+              <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
+                <p className="text-sm text-slate-500">
+                  Ask about live market data or regulatory compliance.
+                </p>
+                <div className="flex flex-col gap-2 w-full max-w-sm">
+                  {SAMPLE_QUERIES.map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => handleSend(q)}
+                      className="rounded-lg border border-white/8 bg-[#1e1e2e] px-4 py-2 text-sm text-slate-300 transition-colors hover:border-[#06b6d4]/40 hover:text-[#06b6d4]"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="mx-auto max-w-2xl space-y-4">
+              {messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`flex msg-animate ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm leading-relaxed ${
+                      m.role === "user"
+                        ? "bg-[#06b6d4] text-[#0a0a0f] font-medium"
+                        : "bg-[#1e1e2e] text-slate-200"
+                    }`}
+                  >
+                    {m.content}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start msg-animate">
+                  <div className="rounded-xl bg-[#1e1e2e] px-4 py-3">
+                    <span className="flex gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <span
+                          key={i}
+                          className="inline-block h-1.5 w-1.5 rounded-full bg-[#06b6d4] animate-bounce"
+                          style={{ animationDelay: `${i * 0.15}s` }}
+                        />
+                      ))}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {error && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400">
+                  {error}
+                </div>
+              )}
+            </div>
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Input */}
+          <div className="border-t border-white/8 px-4 py-3">
+            <div className="mx-auto flex max-w-2xl gap-2">
+              {messages.length > 0 && (
+                <button
+                  onClick={handleClear}
+                  disabled={isLoading}
+                  title="Clear conversation"
+                  className="rounded-lg border border-white/10 p-2.5 text-slate-400 transition-colors hover:border-white/20 hover:text-slate-200 disabled:opacity-40"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </button>
+              )}
+              <input
+                className="flex-1 rounded-lg border border-white/10 bg-[#1e1e2e] px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#06b6d4]/50 focus:outline-none"
+                placeholder="Ask about a stock, company, or compliance rule..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                disabled={isLoading}
+              />
+              <button
+                onClick={() => handleSend()}
+                disabled={isLoading || !input.trim()}
+                className="rounded-lg bg-[#06b6d4] px-3 py-2.5 text-[#0a0a0f] transition-colors hover:bg-[#0891b2] disabled:opacity-40"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          {executionLog.length === 0 && (
-            <p className="mt-4 text-center text-xs text-slate-600">
-              Execution steps will appear here as the agent runs.
-            </p>
-          )}
-          {executionLog.map((event, i) => (
-            <EventCard key={i} event={event} />
-          ))}
+
+        {/* Under the Hood panel */}
+        <div className={`shrink-0 border-l border-white/8 flex flex-col w-full lg:w-80 ${activeTab !== "hood" ? "hidden lg:flex" : "flex"}`}>
+          <div className="border-b border-white/8 px-4 py-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Under the Hood
+            </h2>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {executionLog.length === 0 && (
+              <p className="mt-4 text-center text-xs text-slate-600">
+                Execution steps will appear here as the agent runs.
+              </p>
+            )}
+            {executionLog.map((event, i) => (
+              <EventCard key={i} event={event} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

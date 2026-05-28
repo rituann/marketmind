@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TrendingUp, FileSearch, Eye } from "lucide-react";
 
 const TECH_BADGES = [
   "LangGraph", "MCP", "RAG", "Groq", "ChromaDB", "Next.js", "FastAPI",
@@ -6,19 +7,19 @@ const TECH_BADGES = [
 
 const FEATURES = [
   {
-    icon: "📈",
+    Icon: TrendingUp,
     title: "Live Market Data",
-    desc: "Real-time stock quotes, P/E ratios, RSI, MACD, and technical indicators via a custom MCP finance server backed by yfinance.",
+    desc: "Real-time stock quotes, P/E ratios, RSI, MACD, and technical indicators — pulled live from Yahoo Finance on every query.",
   },
   {
-    icon: "📋",
+    Icon: FileSearch,
     title: "Regulatory Intelligence",
-    desc: "Ask about compliance policies, insider trading rules, and blackout periods. Powered by a RAG pipeline over mock regulatory documents.",
+    desc: "Ask about compliance policies, insider trading rules, and trading blackout periods. The agent reads your internal documents and answers in plain English.",
   },
   {
-    icon: "🔍",
+    Icon: Eye,
     title: "Transparent AI",
-    desc: "Watch the agent think in real time. Every routing decision, tool call, and data fetch is surfaced in the Under the Hood panel.",
+    desc: "Watch every decision the agent makes in real time — which tools it used, what data it fetched, and why — before the final answer arrives.",
   },
 ];
 
@@ -33,16 +34,15 @@ export default function LandingPage() {
         </div>
 
         <h1 className="mt-4 max-w-3xl text-5xl font-bold leading-tight tracking-tight text-slate-50 sm:text-6xl">
-          AI-powered fintech{" "}
-          <span className="text-[#06b6d4]">intelligence.</span>
-          <br />
-          Live.
+          An AI analyst that reads{" "}
+          <span className="text-[#06b6d4]">markets and your docs</span>
+          {" "}at the same time.
         </h1>
 
         <p className="mt-6 max-w-xl text-lg text-slate-400">
-          Ask about any stock or compliance policy. A LangGraph state machine
-          routes your query through live market data tools and a regulatory
-          document RAG pipeline, then streams back a synthesized answer.
+          Ask any question about a stock or a compliance policy. The agent
+          pulls live market data, searches your internal documents, and streams
+          back a cited answer — showing every step it took to get there.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -82,7 +82,9 @@ export default function LandingPage() {
               key={f.title}
               className="rounded-xl border border-white/8 bg-[#1e1e2e] p-6"
             >
-              <div className="mb-3 text-2xl">{f.icon}</div>
+              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#06b6d4]/10">
+                <f.Icon className="h-5 w-5 text-[#06b6d4]" />
+              </div>
               <h3 className="mb-2 font-semibold text-slate-100">{f.title}</h3>
               <p className="text-sm leading-relaxed text-slate-400">{f.desc}</p>
             </div>

@@ -1,6 +1,11 @@
 # Feature Implementation Plan — Market-Agent UI
 
-**Overall Progress:** `100%` (All steps complete)
+**Overall Progress:** `100%` (All steps complete and deployed)
+
+**Live URLs:**
+- Frontend: https://playmarketmind.vercel.app
+- Backend: https://marketmind-f8zl.onrender.com
+- GitHub: https://github.com/rituann/marketmind
 
 ---
 
