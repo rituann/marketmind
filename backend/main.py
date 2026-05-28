@@ -14,7 +14,13 @@ app = FastAPI(title="Market-Agent API")
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url, "http://localhost:3000", "https://localhost:3000"],
+    allow_origins=[
+        frontend_url,
+        "http://localhost:3000",
+        "https://localhost:3000",
+        "https://playmarketmind.vercel.app",
+        "https://playmarketmind-me2mvozeq-ritzais-projects.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
