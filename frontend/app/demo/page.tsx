@@ -134,7 +134,7 @@ export default function DemoPage() {
             onClick={() => setActiveTab(tab)}
             className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
               activeTab === tab
-                ? "border-b-2 border-[#06b6d4] text-[#06b6d4]"
+                ? "border-b-2 border-[#818cf8] text-[#818cf8]"
                 : "text-slate-500 hover:text-slate-300"
             }`}
           >
@@ -158,7 +158,7 @@ export default function DemoPage() {
                     <button
                       key={q}
                       onClick={() => handleSend(q)}
-                      className="rounded-lg border border-white/8 bg-[#1e1e2e] px-4 py-2 text-sm text-slate-300 transition-colors hover:border-[#06b6d4]/40 hover:text-[#06b6d4]"
+                      className="rounded-lg border border-white/8 bg-[#1e1e2e] px-4 py-2 text-sm text-slate-300 transition-colors hover:border-[#818cf8]/40 hover:text-[#818cf8]"
                     >
                       {q}
                     </button>
@@ -175,7 +175,7 @@ export default function DemoPage() {
                   <div
                     className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm leading-relaxed ${
                       m.role === "user"
-                        ? "bg-[#06b6d4] text-[#0a0a0f] font-medium"
+                        ? "bg-[#6366f1] text-white font-medium"
                         : "bg-[#1e1e2e] text-slate-200"
                     }`}
                   >
@@ -190,7 +190,7 @@ export default function DemoPage() {
                       {[0, 1, 2].map((i) => (
                         <span
                           key={i}
-                          className="inline-block h-1.5 w-1.5 rounded-full bg-[#06b6d4] animate-bounce"
+                          className="inline-block h-1.5 w-1.5 rounded-full bg-[#818cf8] animate-bounce"
                           style={{ animationDelay: `${i * 0.15}s` }}
                         />
                       ))}
@@ -221,7 +221,7 @@ export default function DemoPage() {
                 </button>
               )}
               <input
-                className="flex-1 rounded-lg border border-white/10 bg-[#1e1e2e] px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#06b6d4]/50 focus:outline-none"
+                className="flex-1 rounded-lg border border-white/10 bg-[#1e1e2e] px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-[#818cf8]/50 focus:outline-none"
                 placeholder="Ask about a stock, company, or compliance rule..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -231,7 +231,7 @@ export default function DemoPage() {
               <button
                 onClick={() => handleSend()}
                 disabled={isLoading || !input.trim()}
-                className="rounded-lg bg-[#06b6d4] px-3 py-2.5 text-[#0a0a0f] transition-colors hover:bg-[#0891b2] disabled:opacity-40"
+                className="rounded-lg bg-[#6366f1] px-3 py-2.5 text-white transition-colors hover:bg-[#4f46e5] disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
               </button>

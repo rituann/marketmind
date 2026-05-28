@@ -28,14 +28,13 @@ export default function LandingPage() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
       {/* Hero */}
       <section className="flex flex-col items-center py-24 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#06b6d4]/30 bg-[#06b6d4]/10 px-3 py-1 text-xs text-[#06b6d4]">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#06b6d4]" />
-          Agentic AI · Production Architecture
-        </div>
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          Market Intelligence Platform
+        </p>
 
         <h1 className="mt-4 max-w-3xl text-5xl font-bold leading-tight tracking-tight text-slate-50 sm:text-6xl">
           An AI analyst that reads{" "}
-          <span className="text-[#06b6d4]">markets and your docs</span>
+          <span className="text-[#818cf8]">markets and your docs</span>
           {" "}at the same time.
         </h1>
 
@@ -48,7 +47,7 @@ export default function LandingPage() {
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/demo"
-            className="rounded-lg bg-[#06b6d4] px-6 py-3 text-sm font-semibold text-[#0a0a0f] transition-colors hover:bg-[#0891b2]"
+            className="rounded-lg bg-[#6366f1] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#4f46e5]"
           >
             Try the Demo →
           </Link>
@@ -80,13 +79,13 @@ export default function LandingPage() {
           {FEATURES.map((f) => (
             <div
               key={f.title}
-              className="rounded-xl border border-white/8 bg-[#1e1e2e] p-6"
+              className="flex flex-col items-center rounded-xl border border-white/8 bg-[#1e1e2e] p-8 text-center"
             >
-              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-[#06b6d4]/10">
-                <f.Icon className="h-5 w-5 text-[#06b6d4]" />
+              <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-[#818cf8]/10">
+                <f.Icon className="h-12 w-12 text-[#818cf8]" />
               </div>
-              <h3 className="mb-2 font-semibold text-slate-100">{f.title}</h3>
-              <p className="text-sm leading-relaxed text-slate-400">{f.desc}</p>
+              <h3 className="mb-3 text-lg font-semibold text-slate-100">{f.title}</h3>
+              <p className="text-base leading-relaxed text-slate-400">{f.desc}</p>
             </div>
           ))}
         </div>

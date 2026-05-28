@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0a0a0f]/80 backdrop-blur-sm">
+    <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0f172a]/80 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-[#06b6d4] font-bold text-lg tracking-tight">
+          <span className="text-[#818cf8] font-bold text-lg tracking-tight">
             Market
           </span>
           <span className="font-bold text-lg tracking-tight text-slate-100">

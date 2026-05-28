@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { GitFork } from "lucide-react";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "MarketMind — AI Fintech Intelligence",
@@ -15,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-[#0a0a0f] text-slate-100 antialiased">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-[#0f172a] text-slate-100 antialiased">
         <Navbar />
         <main>{children}</main>
         <footer className="border-t border-white/8 py-6">

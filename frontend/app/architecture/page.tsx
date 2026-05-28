@@ -36,9 +36,9 @@ const NODE_STYLE_DEFAULT = {
 
 const NODE_STYLE_ACTIVE = {
   ...NODE_STYLE_DEFAULT,
-  border: "1.5px solid #06b6d4",
-  background: "#0e3844",
-  boxShadow: "0 0 12px rgba(6,182,212,0.4)",
+  border: "1.5px solid #818cf8",
+  background: "#1e1b4b",
+  boxShadow: "0 0 12px rgba(129,140,248,0.4)",
 };
 
 // ─── Concept cards ────────────────────────────────────────────────────────────
@@ -165,8 +165,8 @@ function ConceptCard({ c }: { c: typeof CONCEPTS[0] }) {
         onClick={() => setOpen((o) => !o)}
         className="flex w-full cursor-pointer items-start gap-3 px-5 py-4 text-left"
       >
-        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#06b6d4]/10">
-          <c.Icon className="h-4 w-4 text-[#06b6d4]" />
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#818cf8]/10">
+          <c.Icon className="h-4 w-4 text-[#818cf8]" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-slate-100">{c.name}</p>
@@ -267,14 +267,14 @@ export default function ArchitecturePage() {
                 key={q}
                 onClick={() => handlePreset(q)}
                 disabled={isLoading}
-                className="flex items-center gap-2 rounded-lg border border-white/8 bg-[#1e1e2e] px-4 py-3 text-left text-sm text-slate-300 transition-colors hover:border-[#06b6d4]/40 hover:text-[#06b6d4] disabled:opacity-40"
+                className="flex items-center gap-2 rounded-lg border border-white/8 bg-[#1e1e2e] px-4 py-3 text-left text-sm text-slate-300 transition-colors hover:border-[#818cf8]/40 hover:text-[#818cf8] disabled:opacity-40"
               >
                 <Play className="h-3 w-3 shrink-0" />
                 {q}
               </button>
             ))}
             {isLoading && (
-              <div className="rounded-lg border border-[#06b6d4]/30 bg-[#06b6d4]/10 px-4 py-3 text-sm text-[#06b6d4]">
+              <div className="rounded-lg border border-[#818cf8]/30 bg-[#818cf8]/10 px-4 py-3 text-sm text-[#818cf8]">
                 Agent running…
               </div>
             )}
@@ -303,7 +303,7 @@ export default function ArchitecturePage() {
         <ol className="space-y-3">
           {FLOW_STEPS.map((s) => (
             <li key={s.n} className="flex gap-4 rounded-lg border border-white/8 bg-[#1e1e2e] px-4 py-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#06b6d4]/20 text-xs font-bold text-[#06b6d4]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#818cf8]/20 text-xs font-bold text-[#818cf8]">
                 {s.n}
               </span>
               <p className="text-sm text-slate-300">{s.text}</p>
