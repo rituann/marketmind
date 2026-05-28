@@ -132,7 +132,7 @@ npm run dev
 4. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 5. Add env var: `GROQ_API_KEY=<your key>`
 
-> **Note:** Render's free tier spins down after 15 minutes of inactivity. The first request after sleep takes ~30s to wake up.
+> **Note:** Render's free tier spins down after 15 minutes of inactivity. The first request after sleep takes ~30s to wake up. The homepage fires a silent `GET /health` on load (`PrewarmBackend` component) to start the wake-up before the user navigates to /demo.
 
 ### Frontend → Vercel
 
@@ -155,6 +155,9 @@ The original RAG used sentence-transformers + ChromaDB. sentence-transformers si
 
 **Why a "none" routing path?**  
 The original router had no exit for conversational messages — "Hi" and meta-questions got forced through the finance tool, which tried to parse them as stock tickers and returned "No tickers found" in the final answer. Adding `tools: []` as a valid router output lets the agent answer naturally without calling any tools.
+
+**Why fire a health-check ping from the homepage?**  
+Render's free tier takes ~30s to cold-start. Rather than asking users to wait when they first submit a query, the homepage mounts a tiny `"use client"` component (`PrewarmBackend`) that silently fetches `/health` on load. The user spends 5–15s reading the hero copy; by the time they click "Try the Demo" and type a question, the container is already warm. No UptimeRobot needed for a demo context.
 
 **Why session-only document uploads?**  
 Render's filesystem is ephemeral — files written at runtime are wiped on the next deploy or restart. A persistent solution would require an external database (e.g. Supabase). For a portfolio demo, session-only uploads are the right tradeoff: they demonstrate the capability without the infrastructure overhead. The UI clearly labels uploads as "session only".
@@ -190,7 +193,8 @@ finance-market-agent/
     │   ├── demo/page.tsx     # /demo chat + event log
     │   └── architecture/page.tsx  # /architecture diagram + concept cards
     ├── components/
-    │   └── Navbar.tsx
+    │   ├── Navbar.tsx
+    │   └── PrewarmBackend.tsx  # fires /health on homepage load to reduce cold-start latency
     ├── hooks/
     │   └── useChatStream.ts  # SSE streaming hook
     └── package.json

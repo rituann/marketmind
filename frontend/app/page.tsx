@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TrendingUp, FileSearch, Eye } from "lucide-react";
+import PrewarmBackend from "@/components/PrewarmBackend";
 
 const TECH_BADGES = [
   "LangGraph", "MCP", "RAG", "Groq", "BM25", "Next.js", "FastAPI",
@@ -26,6 +27,7 @@ const FEATURES = [
 export default function LandingPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <PrewarmBackend />
       {/* Hero */}
       <section className="flex flex-col items-center py-24 text-center">
         <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
