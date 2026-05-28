@@ -1,8 +1,10 @@
+import io
 import json
 import os
-import asyncio
+import zipfile
+import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -34,6 +36,49 @@ class ChatRequest(BaseModel):
 @app.get("/api/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/api/docs")
+async def get_docs():
+    from rag.retriever import list_docs
+    return list_docs()
+
+
+@app.post("/api/docs/upload")
+async def upload_doc(file: UploadFile = File(...)):
+    filename = file.filename or ""
+    name = filename.rsplit(".", 1)[0] or "uploaded_doc"
+
+    if filename.endswith(".txt"):
+        raw = await file.read()
+        text = raw.decode("utf-8", errors="ignore")
+
+    elif filename.endswith(".docx"):
+        raw = await file.read()
+        try:
+            with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                with z.open("word/document.xml") as f:
+                    tree = ET.parse(f)
+            ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+            paragraphs = []
+            for para in tree.findall(".//w:p", ns):
+                texts = [node.text or "" for node in para.findall(".//w:t", ns)]
+                joined = "".join(texts).strip()
+                if joined:
+                    paragraphs.append(joined)
+            text = "\n\n".join(paragraphs)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Could not parse .docx file.")
+
+    else:
+        raise HTTPException(status_code=400, detail="Only .txt and .docx files are supported.")
+
+    if not text.strip():
+        raise HTTPException(status_code=400, detail="File appears to be empty.")
+
+    from rag.retriever import add_session_doc
+    add_session_doc(name, text)
+    return {"name": name, "characters": len(text), "status": "loaded"}
 
 
 @app.post("/api/chat")

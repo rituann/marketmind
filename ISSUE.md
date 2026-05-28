@@ -104,6 +104,14 @@ A proper multi-page website (Next.js) backed by a FastAPI + LangGraph Python ser
 - **Concept cards** — explicit ChevronDown icon + "Click any card to expand" hint
 - **Clear chat button** (RotateCcw icon) on demo page
 
+## Feature: Session Document Uploads
+
+- **`POST /api/docs/upload`** — accepts `.txt` and `.docx`. No new dependencies: .docx parsed via stdlib `zipfile` + `xml.etree.ElementTree` (docx is a ZIP containing XML). `python-multipart` added to requirements for FastAPI file parsing.
+- **`GET /api/docs`** — returns `{static: [...], session: [...]}` lists
+- **`rag/retriever.py`** — refactored from `lru_cache` to a module-level `_cached_index` global. `add_session_doc()` appends to `_session_docs` and sets `_cached_index = None` to invalidate. Next query rebuilds the BM25 index with all static + session docs.
+- **Frontend (demo page)** — "Knowledge Base" panel in the right sidebar: lists static docs in slate, session docs in indigo, upload button triggers hidden `<input type="file">`. Uploads are labelled "session only".
+- **Limitation**: Render filesystem is ephemeral — uploaded docs are lost on restart. Noted in UI and docs.
+
 ## Design Refresh (Session 2)
 
 - **Accent colour**: Cyan (`#06b6d4`) → Indigo (`#818cf8` / `#6366f1`) — eliminates the "AI startup dark mode" signal

@@ -1,7 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Zap, TrendingUp, FileSearch, Brain, Send, RotateCcw, X } from "lucide-react";
+import { Zap, TrendingUp, FileSearch, Brain, Send, RotateCcw, X, Upload, FileText } from "lucide-react";
 import { useChatStream, ExecutionEvent } from "@/hooks/useChatStream";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 interface Message {
   role: "user" | "assistant";
@@ -71,8 +73,32 @@ export default function DemoPage() {
   const [input, setInput] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("chat");
   const [showBanner, setShowBanner] = useState(true);
+  const [sessionDocs, setSessionDocs] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { response, executionLog, isLoading, error, sendMessage } = useChatStream();
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${API_URL}/api/docs/upload`, { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail ?? "Upload failed");
+      setSessionDocs((prev) => [...prev, data.name]);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   useEffect(() => {
     if (response) {
@@ -241,6 +267,46 @@ export default function DemoPage() {
 
         {/* Under the Hood panel */}
         <div className={`shrink-0 border-l border-white/8 flex flex-col w-full lg:w-80 ${activeTab !== "hood" ? "hidden lg:flex" : "flex"}`}>
+          {/* Knowledge Base */}
+          <div className="border-b border-white/8 px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Knowledge Base</h2>
+              <span className="text-[10px] text-slate-600">session only</span>
+            </div>
+            <div className="mb-2 space-y-1">
+              {["sec_rule_10b5", "mifid2_summary", "trading_blackout_policy"].map((doc) => (
+                <div key={doc} className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <FileText className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{doc}</span>
+                </div>
+              ))}
+              {sessionDocs.map((doc) => (
+                <div key={doc} className="flex items-center gap-1.5 text-xs text-[#818cf8]">
+                  <FileText className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{doc}</span>
+                </div>
+              ))}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".txt,.docx"
+              className="hidden"
+              onChange={handleUpload}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/10 py-1.5 text-xs text-slate-400 transition-colors hover:border-[#818cf8]/40 hover:text-[#818cf8] disabled:opacity-40"
+            >
+              <Upload className="h-3 w-3" />
+              {uploading ? "Uploading…" : "Upload .txt or .docx"}
+            </button>
+            {uploadError && (
+              <p className="mt-1.5 text-[10px] text-red-400">{uploadError}</p>
+            )}
+          </div>
+
           <div className="border-b border-white/8 px-4 py-3">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Under the Hood

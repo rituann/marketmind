@@ -1,42 +1,63 @@
 from pathlib import Path
-from functools import lru_cache
 from rank_bm25 import BM25Okapi
 
 DOCS_DIR = Path(__file__).parent / "docs"
 
+# Module-level cache — invalidated whenever a session doc is added
+_session_docs: list[tuple[str, str]] = []  # (display_name, text)
+_cached_index: tuple | None = None          # (BM25Okapi, metadata)
 
-@lru_cache(maxsize=1)
-def _build_index():
-    """
-    Load all .txt docs, split into paragraphs, and build a BM25 index.
-    Called once on first query; result is cached for the process lifetime.
-    Replaces sentence-transformers + ChromaDB to stay within Render free-tier
-    512 MB RAM limit (PyTorch alone consumed ~300 MB).
-    """
-    chunks = []   # tokenised word lists for BM25
-    metadata = [] # (source_name, raw_text) for each chunk
+
+def _build_index() -> tuple:
+    global _cached_index
+    if _cached_index is not None:
+        return _cached_index
+
+    chunks: list[list[str]] = []
+    metadata: list[tuple[str, str]] = []
 
     for txt_file in sorted(DOCS_DIR.glob("*.txt")):
         text = txt_file.read_text(encoding="utf-8")
-        paragraphs = [p.strip() for p in text.split("\n\n") if len(p.strip()) > 40]
-        for para in paragraphs:
-            chunks.append(para.lower().split())
-            metadata.append((txt_file.stem, para))
+        for para in text.split("\n\n"):
+            para = para.strip()
+            if len(para) > 40:
+                chunks.append(para.lower().split())
+                metadata.append((txt_file.stem, para))
 
-    return BM25Okapi(chunks), metadata
+    for name, text in _session_docs:
+        for para in text.split("\n\n"):
+            para = para.strip()
+            if len(para) > 40:
+                chunks.append(para.lower().split())
+                metadata.append((name, para))
+
+    _cached_index = (BM25Okapi(chunks), metadata)
+    return _cached_index
+
+
+def add_session_doc(name: str, text: str) -> None:
+    global _cached_index
+    _session_docs.append((name, text))
+    _cached_index = None  # invalidate so next query rebuilds with the new doc
+
+
+def list_docs() -> dict:
+    static = sorted(f.stem for f in DOCS_DIR.glob("*.txt"))
+    session = [name for name, _ in _session_docs]
+    return {"static": static, "session": session}
 
 
 def search_docs(query: str, k: int = 3) -> list[str]:
-    if not DOCS_DIR.exists():
-        return ["[RAG] No documents directory found."]
+    if not DOCS_DIR.exists() and not _session_docs:
+        return ["[RAG] No documents found."]
 
     bm25, metadata = _build_index()
     scores = bm25.get_scores(query.lower().split())
-
     top_k = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:k]
+
     results = [
         f"[Source: {metadata[i][0]}]\n{metadata[i][1]}"
         for i in top_k
         if scores[i] > 0
     ]
-    return results or ["No relevant regulatory documents found for this query."]
+    return results or ["No relevant documents found for this query."]

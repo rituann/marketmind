@@ -67,6 +67,7 @@ A proper multi-page website (Next.js) backed by a FastAPI + LangGraph Python ser
 - **Frontend host: Vercel** — Free tier, perfect for Next.js. Instant deploys from GitHub.
 - **RAG search: `rank-bm25`** — Replaced ChromaDB + sentence-transformers after Render free-tier OOM crash. PyTorch (sentence-transformers dependency) consumed ~300 MB of 512 MB RAM. BM25 is pure Python, zero ML deps, builds index from raw .txt files in-memory on first query.
 - **Router "none" path** — Added `tools: []` output so conversational queries skip all tools and go straight to the synthesiser. Without this, "Hi" was routed to finance and returned "No tickers found" in the answer.
+- **Session document uploads** — `POST /api/docs/upload` accepts `.txt` and `.docx` (parsed via stdlib zipfile, no new deps except `python-multipart`). BM25 index invalidated and rebuilt on next query. Session-only: Render filesystem is ephemeral so docs are lost on restart. UI labels this clearly.
 - **Design: Dark mode** — Background `#0f172a` (slate-navy), accent `#818cf8` / `#6366f1` (indigo), cards `#1e1e2e`. Inter font. shadcn/ui dark theme as component base.
 
 ---

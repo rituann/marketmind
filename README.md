@@ -156,6 +156,9 @@ The original RAG used sentence-transformers + ChromaDB. sentence-transformers si
 **Why a "none" routing path?**  
 The original router had no exit for conversational messages — "Hi" and meta-questions got forced through the finance tool, which tried to parse them as stock tickers and returned "No tickers found" in the final answer. Adding `tools: []` as a valid router output lets the agent answer naturally without calling any tools.
 
+**Why session-only document uploads?**  
+Render's filesystem is ephemeral — files written at runtime are wiped on the next deploy or restart. A persistent solution would require an external database (e.g. Supabase). For a portfolio demo, session-only uploads are the right tradeoff: they demonstrate the capability without the infrastructure overhead. The UI clearly labels uploads as "session only".
+
 **Why SSE over WebSockets?**  
 SSE is one-directional, stateless, and works through standard HTTP — no upgrade handshake, no connection management. For a server-to-browser stream of agent events, it's simpler and more reliable than WebSockets.
 
@@ -175,7 +178,7 @@ finance-market-agent/
 │   ├── rag/
 │   │   ├── docs/             # 3 mock regulatory documents (.txt)
 │   │   ├── ingest.py         # Retired — see file for explanation
-│   │   └── retriever.py      # BM25 search, lru_cache on index
+│   │   └── retriever.py      # BM25 search + session doc support
 │   ├── main.py               # FastAPI app + /api/chat SSE endpoint
 │   ├── requirements.txt
 │   └── .env.example
