@@ -11,10 +11,12 @@ Given a user query, decide which tools are needed:
 - "finance": for stock prices, market data, technical indicators, company fundamentals
 - "rag": for regulatory documents, compliance policies, internal trading rules
 - "both": for questions that need both market data AND regulatory information
+- "none": for greetings, conversational messages, meta-questions about the system, or anything unrelated to finance or compliance
 
 Respond with ONLY a JSON object: {"tools": ["finance"], "reasoning": "brief explanation"}
 or {"tools": ["rag"], "reasoning": "..."}
-or {"tools": ["finance", "rag"], "reasoning": "..."}"""
+or {"tools": ["finance", "rag"], "reasoning": "..."}
+or {"tools": [], "reasoning": "..."}"""
 
 
 def router_node(state: AgentState) -> AgentState:
@@ -128,7 +130,9 @@ If tool data shows an error, acknowledge it gracefully."""
 
 
 def route_after_router(state: AgentState) -> str:
-    tools = state.get("next_tools", ["finance"])
+    tools = state.get("next_tools", [])
+    if not tools:
+        return "synth"
     if "finance" in tools:
         return "finance"
     return "rag"
@@ -148,7 +152,7 @@ def build_graph():
     g.add_node("synth", synth_node)
 
     g.set_entry_point("router")
-    g.add_conditional_edges("router", route_after_router, {"finance": "finance", "rag": "rag"})
+    g.add_conditional_edges("router", route_after_router, {"finance": "finance", "rag": "rag", "synth": "synth"})
     g.add_conditional_edges("finance", route_after_finance, {"rag": "rag", "synth": "synth"})
     g.add_edge("rag", "synth")
     g.add_edge("synth", END)
