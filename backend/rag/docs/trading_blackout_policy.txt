@@ -1,0 +1,70 @@
+Internal Trading Blackout Policy
+Effective Date: January 1, 2025
+Issuing Authority: Chief Compliance Officer
+Review Cycle: Annual
+
+PURPOSE
+This policy establishes mandatory blackout periods during which employees are prohibited from trading in company securities or securities of designated restricted companies. The policy is designed to prevent insider trading violations and protect both employees and the firm from legal liability.
+
+SCOPE
+This policy applies to all employees, contractors, directors, and officers of the firm, including all subsidiaries. It covers trading in equities, options, convertible bonds, ETFs concentrated in restricted names, and derivatives referenced to restricted securities.
+
+QUARTERLY EARNINGS BLACKOUT
+All employees are prohibited from trading in firm securities during the period beginning 14 calendar days before the end of each fiscal quarter and ending 48 hours after the public release of quarterly earnings results.
+
+Fiscal quarter end dates: March 31, June 30, September 30, December 31.
+
+DEAL-SPECIFIC BLACKOUT — RESTRICTED LIST
+When the firm is engaged in a material transaction (M&A advisory, underwriting, due diligence, restructuring advisory), the relevant securities are placed on the Restricted List. Trading in Restricted List securities requires advance approval from the CCO and is presumptively denied absent exceptional circumstances.
+
+CURRENT RESTRICTED LIST (as of Q2 2025)
+The following securities are currently on the firm's Restricted List and may NOT be traded without explicit CCO pre-clearance:
+
+1. AAPL — Apple Inc.
+   Reason: Active advisory engagement (Project Orion)
+   Blackout since: March 15, 2025
+   Expected lift date: Subject to deal conclusion
+
+2. TSLA — Tesla, Inc.
+   Reason: Supply chain restructuring advisory
+   Blackout since: April 1, 2025
+   Expected lift date: Subject to deal conclusion
+
+3. MSFT — Microsoft Corporation
+   Reason: Due diligence review for potential strategic transaction
+   Blackout since: May 1, 2025
+   Expected lift date: TBD
+
+4. NVDA — NVIDIA Corporation
+   Reason: Investment banking mandate (confidential)
+   Blackout since: May 10, 2025
+   Expected lift date: TBD
+
+5. JPM — JPMorgan Chase & Co.
+   Reason: Regulatory review period (external)
+   Blackout since: April 20, 2025
+   Expected lift date: June 30, 2025
+
+PERSONAL TRADING REQUIREMENTS
+Pre-Clearance: All employees in Investment Banking, Research, and Trading must obtain pre-clearance for any personal securities transaction above $5,000 in value. Pre-clearance requests must be submitted at least one business day in advance.
+
+Holding Period: Securities acquired through pre-cleared transactions must be held for a minimum of 30 calendar days before sale.
+
+Reporting: All employees must report new personal securities accounts within 10 days of opening and submit annual holdings certifications by January 31 each year.
+
+SHORT-TERM TRADING PROHIBITION
+Employees are prohibited from profiting from the purchase and sale, or sale and purchase, of firm securities within any period of less than six months (Section 16(b) of the Securities Exchange Act).
+
+CONSEQUENCES OF VIOLATION
+Violations of this policy may result in:
+- Mandatory disgorgement of profits
+- Disciplinary action up to and including termination
+- Referral to regulatory authorities (SEC, FINRA, FCA)
+- Personal civil and criminal liability under securities laws
+
+EXCEPTIONS
+Exceptions to this policy may be granted by the CCO in extraordinary circumstances. All exception requests must be in writing and retained in the compliance records for a minimum of five years. Exceptions are not available for Restricted List securities.
+
+QUESTIONS AND REPORTING
+Direct all questions to: compliance@firm.internal
+To report a potential violation: ethics@firm.internal or the anonymous hotline at 1-800-XXX-XXXX

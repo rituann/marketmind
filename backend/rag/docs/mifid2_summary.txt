@@ -1,0 +1,54 @@
+MiFID II Compliance Summary
+Markets in Financial Instruments Directive II — Directive 2014/65/EU
+Internal Reference Document — Compliance Department
+
+OVERVIEW
+MiFID II (Markets in Financial Instruments Directive II) came into force on 3 January 2018, replacing MiFID I. It is the cornerstone of EU financial markets regulation, covering investment firms, trading venues, and data reporting. Its primary objectives are investor protection, market transparency, and harmonized regulation across EU member states.
+
+SCOPE
+MiFID II applies to:
+- Investment firms operating in the EU
+- Credit institutions providing investment services
+- Trading venues: Regulated Markets (RM), Multilateral Trading Facilities (MTF), Organised Trading Facilities (OTF)
+- Third-country firms providing services to EU clients
+
+BEST EXECUTION (Article 27)
+Firms must take all sufficient steps to obtain the best possible result for clients when executing orders. Best execution criteria include: price, costs, speed, likelihood of execution and settlement, order size, nature, and any other relevant consideration.
+
+Firms must establish and annually review a Best Execution Policy disclosing the top five execution venues used for each asset class.
+
+TRANSACTION REPORTING (Article 26)
+All transactions in financial instruments admitted to trading on an EU trading venue must be reported to the National Competent Authority (NCA) by end of the following business day. Required fields include: instrument identifier (ISIN/LEI), transaction price, quantity, counterparty information, and trader identification.
+
+Failure to report is subject to administrative sanctions of up to €1 million or 10% of annual turnover.
+
+PRODUCT GOVERNANCE (Articles 16 and 24)
+Manufacturers of financial instruments must define a target market for each product and ensure distribution only to clients in that target market. Distributors must understand each product and verify suitability before recommending it to retail clients.
+
+RESEARCH UNBUNDLING (Article 13)
+Investment managers must pay for investment research separately from execution costs. Research may be paid for directly by the investment firm or from a Research Payment Account (RPA) funded by client charges with explicit client consent and pre-disclosed budgets.
+
+POSITION LIMITS (Articles 57-58)
+Position limits apply to commodity derivatives to prevent market abuse and support orderly pricing. The European Securities and Markets Authority (ESMA) sets position limits for significant commodity derivatives. Investment firms must report weekly positions to NCAs.
+
+ALGORITHMIC AND HIGH-FREQUENCY TRADING (Articles 17 and 48)
+Firms engaging in algorithmic trading must implement robust systems and risk controls. Requirements include: pre- and post-trade controls, kill switches, testing in dedicated environments, and annual self-assessment. High-frequency traders must maintain records of all orders for five years.
+
+INVESTOR CATEGORISATION
+- Retail Clients: Highest level of protection; full suitability and appropriateness requirements apply
+- Professional Clients: Presumed to have knowledge and experience; lighter disclosure requirements
+- Eligible Counterparties: Lowest protection level; limited MiFID II obligations
+
+SUITABILITY AND APPROPRIATENESS
+Before providing investment advice or portfolio management, firms must conduct a suitability assessment covering: investment objectives, financial situation, and knowledge/experience. For non-advised services, appropriateness tests assess whether the client has sufficient knowledge to understand the product risks.
+
+MARKET ABUSE REGULATION (MAR) INTERACTION
+MiFID II interacts closely with MAR (Regulation EU 596/2014). Firms must establish systems to detect and report suspicious orders and transactions (STORs) to competent authorities. Internal escalation procedures must be documented and tested regularly.
+
+INTERNAL COMPLIANCE OBLIGATIONS
+Our firm's MiFID II compliance program requires:
+1. Annual training for all client-facing staff
+2. Quarterly review of best execution outcomes
+3. Monthly transaction reporting reconciliation
+4. Pre-trade and post-trade transparency compliance checks
+5. Management information reporting to the Board Risk Committee quarterly

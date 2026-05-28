@@ -1,0 +1,39 @@
+SEC Rule 10b-5: Employment of Manipulative and Deceptive Practices
+Source: Securities and Exchange Commission — 17 CFR § 240.10b-5
+
+OVERVIEW
+Rule 10b-5, promulgated under Section 10(b) of the Securities Exchange Act of 1934, is the primary anti-fraud provision governing securities trading in the United States. It prohibits any act or omission resulting in fraud or deceit in connection with the purchase or sale of any security.
+
+PROHIBITED CONDUCT
+It is unlawful for any person, directly or indirectly, by use of any means or instrumentality of interstate commerce:
+(a) To employ any device, scheme, or artifice to defraud;
+(b) To make any untrue statement of a material fact or to omit to state a material fact necessary in order to make the statements made, in the light of the circumstances under which they were made, not misleading; or
+(c) To engage in any act, practice, or course of business which operates or would operate as a fraud or deceit upon any person.
+
+INSIDER TRADING
+The most common application of Rule 10b-5 is to insider trading. Trading on material, non-public information (MNPI) is a violation. Material information is any information that a reasonable investor would consider important in making an investment decision — including earnings announcements, merger discussions, regulatory approvals, and executive changes.
+
+MATERIAL NON-PUBLIC INFORMATION (MNPI) — EXAMPLES
+- Unannounced quarterly earnings significantly above or below analyst expectations
+- Pending mergers, acquisitions, or divestitures not yet publicly disclosed
+- FDA drug approval or rejection decisions before public announcement
+- Regulatory investigations or enforcement actions not yet disclosed
+- Executive departures or appointments prior to press release
+
+TIPPERS AND TIPPEES
+Liability extends beyond the original insider. A "tipper" who discloses MNPI in breach of a duty and receives a benefit is liable. A "tippee" who receives MNPI knowing it was improperly disclosed is also liable if they trade on it.
+
+RESTRICTED TICKERS — INTERNAL COMPLIANCE NOTE
+The following securities are currently subject to heightened MNPI monitoring at our firm due to active deal involvement or advisory relationships:
+- AAPL (Apple Inc.) — active advisory engagement, blackout in effect
+- MSFT (Microsoft Corp.) — pending due diligence review
+- GOOGL (Alphabet Inc.) — restricted pending earnings period
+- TSLA (Tesla Inc.) — restricted due to supply chain advisory work
+
+Employees must obtain pre-clearance from the Chief Compliance Officer before trading any restricted security.
+
+PENALTIES
+Civil penalties up to three times the profit gained or loss avoided. Criminal penalties up to $5 million for individuals and $25 million for firms. Imprisonment up to 20 years for criminal violations under the Sarbanes-Oxley Act.
+
+SAFE HARBOR — RULE 10b5-1 PLANS
+An affirmative defense is available if trades were made pursuant to a pre-established, written trading plan adopted when the person was not aware of MNPI. The plan must specify: the amount, price, and date of the trade; or a formula for determining these; or delegate trading decisions to a third party without MNPI access.
