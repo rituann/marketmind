@@ -2,7 +2,7 @@ import Link from "next/link";
 import { TrendingUp, FileSearch, Eye } from "lucide-react";
 
 const TECH_BADGES = [
-  "LangGraph", "MCP", "RAG", "Groq", "ChromaDB", "Next.js", "FastAPI",
+  "LangGraph", "MCP", "RAG", "Groq", "BM25", "Next.js", "FastAPI",
 ];
 
 const FEATURES = [

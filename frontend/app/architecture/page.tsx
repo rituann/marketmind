@@ -89,24 +89,33 @@ context = "\\n---\\n".join([doc.page_content for doc in results])
   },
   {
     Icon: Hash,
-    name: "Embeddings",
-    summary: "Converting text into numbers so you can search by meaning, not keywords",
-    detail: `Embeddings are vectors (arrays of ~384 numbers) that represent the semantic meaning of text. "Stock restriction" and "trading blackout" have very similar embeddings even though they share no words. We use sentence-transformers/all-MiniLM-L6-v2 — a free, local model — to embed both documents and user queries, enabling semantic search.`,
-    code: `from sentence_transformers import SentenceTransformer
-model = SentenceTransformer("all-MiniLM-L6-v2")
-# "insider trading" → [0.23, -0.11, 0.87, ...]  (384 dims)
-# "trading blackout" → [0.21, -0.09, 0.85, ...]  (similar!)`,
+    name: "BM25 Document Search",
+    summary: "Keyword-based retrieval that fits inside a 512 MB free-tier instance",
+    detail: `The project originally used sentence-transformers + ChromaDB for semantic search. That approach loaded PyTorch (~300 MB RAM) just to embed 3 documents — instantly OOM-killing Render's free-tier container. We replaced it with BM25 (Best Match 25), a proven ranking algorithm used by Elasticsearch and Solr. BM25 scores documents by term frequency and inverse document frequency, requires zero ML dependencies, and builds its index from raw text files in milliseconds. For a small, known corpus of regulatory documents, retrieval quality is indistinguishable from semantic search in practice.`,
+    code: `from rank_bm25 import BM25Okapi
+
+# Build index from raw .txt files — no pre-build step, no model download
+chunks = [para.lower().split() for para in paragraphs]
+bm25 = BM25Okapi(chunks)
+
+# Query
+scores = bm25.get_scores(query.lower().split())
+top_k = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:3]`,
   },
   {
     Icon: Database,
-    name: "Vector Database (ChromaDB)",
-    summary: "A search engine that finds semantically similar content",
-    detail: `ChromaDB stores document embeddings and supports nearest-neighbor search — given a query embedding, it finds the most semantically similar stored vectors in milliseconds. We pre-build the index from 3 regulatory documents and commit it to the repo, so it loads instantly at runtime. No cloud account needed — ChromaDB runs fully in-process.`,
-    code: `# Pre-built once via rag/ingest.py
-vectorstore = Chroma(persist_directory="rag/chroma_db", ...)
+    name: "In-Memory Document Index",
+    summary: "No vector database needed — plain text files, cached on first query",
+    detail: `Instead of a persistent vector database, the RAG pipeline reads the 3 regulatory .txt files at first query, splits them into paragraphs, and builds the BM25 index in memory using Python's functools.lru_cache. The index is reused for every subsequent query in the same process. This eliminates chromadb, sentence-transformers, and langchain-chroma from the dependency tree — saving ~350 MB RAM and removing the need for a pre-build ingestion step. The design decision: for a corpus this small and static, a vector DB is engineering overhead that doesn't improve outcomes.`,
+    code: `from functools import lru_cache
 
-# At runtime
-results = vectorstore.similarity_search_with_score(query, k=3)`,
+@lru_cache(maxsize=1)
+def _build_index():
+    # Runs once per process, result is cached forever
+    for txt_file in DOCS_DIR.glob("*.txt"):
+        paragraphs = text.split("\\n\\n")
+        chunks.append(para.lower().split())
+    return BM25Okapi(chunks), metadata`,
   },
   {
     Icon: Radio,
@@ -129,7 +138,7 @@ while (true) {
     Icon: Network,
     name: "Agent Orchestration",
     summary: "How all the pieces connect into one intelligent system",
-    detail: `The full request lifecycle: (1) User message → Next.js → FastAPI POST /api/chat. (2) FastAPI starts LangGraph. (3) Router node calls Groq LLM to decide which tools are needed. (4) Finance node calls MCP server (yfinance). (5) RAG node embeds query, searches ChromaDB. (6) Synth node calls Groq with all gathered data. (7) Response streams back token-by-token via SSE. Total latency: ~3-5s.`,
+    detail: `The full request lifecycle: (1) User message → Next.js → FastAPI POST /api/chat. (2) FastAPI starts LangGraph. (3) Router node calls Groq LLM to decide which tools are needed. (4) Finance node calls MCP server (yfinance). (5) RAG node scores query against BM25 index built from regulatory .txt files. (6) Synth node calls Groq with all gathered data. (7) Response streams back token-by-token via SSE. Total latency: ~3-5s.`,
     code: `# The full graph in 5 lines
 g.add_node("router", router_node)  # decides tools
 g.add_node("finance", finance_node)  # live data
@@ -151,7 +160,7 @@ const FLOW_STEPS = [
   { n: 3, text: "FastAPI starts the LangGraph state machine and begins streaming SSE events." },
   { n: 4, text: "Router node calls Groq (Llama 3.3 70B) to decide: finance, rag, or both?" },
   { n: 5, text: "Finance node calls the MCP server and fetches get_stock_quote() + get_technicals() via yfinance." },
-  { n: 6, text: "RAG node embeds your query with sentence-transformers, searches ChromaDB, and returns the top-3 relevant regulatory document chunks." },
+  { n: 6, text: "RAG node scores your query against a BM25 index built from the regulatory .txt files and returns the top-3 most relevant paragraphs." },
   { n: 7, text: "Synthesizer node calls Groq again with all gathered context and streams the final answer back via SSE." },
 ];
 
